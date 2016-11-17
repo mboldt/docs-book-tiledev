@@ -1,4 +1,1452 @@
 ---
-title: 
-owner: 
+title: Configuration
+owner: Services
 ---
+
+## <a id='expressions'></a>Double-Paren Expressions
+
+A tile's configuration interface is defined in a `.yml` file in the tile's `metadata` subdirectory. Within a `.yml` file, you can use double parentheses to enclose deployment manifest snippets, and Ops Manager will pass these snippets to BOSH, to incorporate into the manifest that BOSH uses to deploy instances of the tile service. These double-paren expressions are how Ops Manager sends tile configuration information to BOSH, and how you should write these expressions depends on what type of information you want to retrieve.
+
+### <a id=''></a>Referencing Properties
+
+Evaluating a property can be represented by piecing two segments together:
+
+* The location of the property
+* What information from the property you are looking to access (otherwise known as accessors)
+
+Together, the double paren expression can be written as:
+
+`(( LOCATION_OF_PROPERTY.ACCESSOR ))`
+
+The method of referencing the location of the property varies. Here is a complete list of ways to reference a property with some help text to indicate the situation.
+
+<table class="nice"><tr>
+   <td>.properties.top_level_property</td>
+   <td>Refers to the property blueprint whose name is "top_level_property" found in the global list of properties of the same product
+   </tr><tr>
+   <td>.job_one.job_level_property</td>
+   <td>Refers to the property blueprint whose name is "job_level_property" found in the list of properties of the job "job_one" of the same product</td>
+   </tr><tr>
+   <td>job_level_property</td>
+   <td>Refers to the property blueprint whose name is "top_level_property" found in the same product and job whose manifest is currently being evaluated</td>
+   </tr><tr>
+   <td>..other_product.properties.top_level_property</td>
+   <td>Refers to the property blueprint whose name is "top_level_property" found in the global list of properties of the product "other_product"</td>
+   </tr><tr>
+   <td>..other_product.job_two.job_level_property</td>
+   <td>Refers to the property blueprint whose name is "job_level_property" found in the list of properties of the job "job_one" of the product "other_product"</td>
+   </tr>
+</table>
+
+Accessors vary between property blueprint types. See the [Property Blueprint Reference](#property-ref) for available properties and their accessors.
+
+The following example uses the property blueprint type `string` with its one accessor, `value`. A valid double-paren expression to access the value of this property (assuming it is top-level, and has the name `example-string`) would look like:
+
+`(( .properties.example-string.value ))`
+
+### <a id=''></a>Dollar Contexts
+
+Outside of properties, you can also retrieve information about various configuration details of your product and Ops Manager.
+
+* $opsmanager: used by any product to obtain information about specific OpsManager
+* $director: used by any product to obtain information about the Director
+* $self: used by your own product to obtain information about your product’s configuration
+
+#### $opsmanager
+
+<table class="nice"><tr>
+  <td>ca_certificate</td>
+  <td>Provides the root CA cert that is used to sign the Director VM</td>
+  </tr><tr>
+  <td>trusted_certificates</td>
+  <td>Provides a list of certs that are applied by the Director to all VMs</td>
+  </tr><tr>
+  <td>http_proxy</td>
+  <td>Provides the comma separated values that are entered if OpsManager traffic is directed to an HTTP Proxy</td>
+  </tr><tr>
+  <td>https_proxy</td>
+  <td>Provides the comma separated values that are entered if OpsManager traffic is directed to an HTTPS Proxy</td>
+  </tr><tr>
+  <td>no_proxy</td>
+  <td>Provides a the comma separated values that should not go through a proxy.</td></tr>
+</table>
+
+#### $director
+
+<table class="nice"><tr>
+  <td>deployment_ip</td>
+  <td>Provides the IP address that the BOSH Director is deployed on</td>
+  </tr><tr>
+  <td>username</td>
+  <td>Provides the username for the Director VM</td>
+  </tr><tr>
+  <td>password</td><td>Provides the password for the Director VM</td>
+  </tr><tr>
+  <td>ntp_servers</td><td>Provides a list of ntp servers that are deployed by the Director</td>
+  </tr><tr>
+  <td>ca_public_key</td>
+  <td>Provides the public key that is used to sign the Director VM?</td>
+  </tr>
+</table>
+
+#### $self
+
+<table class="nice"><tr>
+  <td>uaa_client_name</td>
+  <td>Provides the UAA client name created for your Product to communicate with the BOSH Director</td>
+  </tr><tr>
+  <td>uaa_client_secret</td>
+  <td>Provides the UAA client secret created for your Product to communicate with the BOSH Director</td>
+  </tr><tr>
+  <td>service_network</td>
+  <td>Provides the name of the service network that has been assigned to your product</td>
+  </tr><tr>
+  <td>stemcell_version</td>
+  <td>Provides the stemcell version that is being used by your product</td>
+  </tr>
+</table>
+
+### <a id='property-ref'></a>Property Blueprint Reference
+
+#### string
+
+Holds a single string value
+
+Accessors
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns the string value</td>
+  </tr>
+</table>
+
+Product template example
+
+```
+- name: example_string
+  type: string
+  configurable: true
+  default: 'Hello world'
+  constraints:
+  - must_match_regex: '\A[^!@#$%^&*()]*\z'
+    error_message: 'This name cannot contain special characters.'
+  - must_match_regex: '\A[^0-9]*\z'
+    error_message: 'This name cannot contain digits.'
+```
+
+#### boolean
+
+Holds a single boolean value
+
+Accessors
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns the boolean value</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_boolean
+  type: boolean
+  configurable: true
+  default: false
+```
+
+#### collection
+
+Collections represent the ability to hold multi-property entries. Each "record" will contain values for the configured set of property blueprints.
+
+Accessors
+<table class="nice"><tr>
+  <td>value</td>
+  <td>An array of hashes whose key are the property name.<br>
+  Example: <code>[{album: ‘my-album’, artist: ‘some-artist’, explicit: true, genre: ‘rock’}]</code></td>
+  </tr>
+</table>
+
+Example:
+
+```
+- name: example_collection
+  type: collection
+  configurable: true
+  property_blueprints:
+    - name: album
+      type: string
+      freeze_on_deploy: true
+    - name: artist
+      type: string
+      freeze_on_deploy: true
+    - name: explicit
+      type: boolean
+    - name: genre
+      type: dropdown_select
+      configurable: true
+      optional: true
+      options:
+        - name: rock
+          label: 'Rock'
+        - name: country
+          label: 'Country'
+        - name: edm
+          label: 'Beep Boop PSH'
+  default:
+    - album: Christmas Carols
+      artist: Ops Manatee
+      explicit: true
+      genre: edm
+```
+
+#### <a name='selector'></a>Selector
+
+Provides the ability to switch between groups of properties.
+
+Selectors are unique in the way that property information is accessed. Ops Manager provides accessors available at the top-level selector property, accessors for retrieving a specific property in an option group, and the ability to provide manifest snippets for a selector option group.
+
+Each selector group may provide manifest snippets. This is because Ops Manager does not support conditionally adding manifest snippets. Therefore, it’s difficult to be able to write manifest sections for a selector. A manifest snippet should be present within all option groups, and can
+
+Accessors on Selector Property
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string of the currently selected option group. Example: "Filet Mignon"
+  </tr><tr>
+  <td>selected_option</td>
+  <td>Scopes the accessor to the currently selected option group. <br>
+  Does not return meaningful information alone. Must be chained with an accessor available to a Selector Option Group.</td>
+  </tr><tr>
+  <td>SPECIFIC_SELECTOR_OPTION_GROUP</td>
+  <td>Scopes the accessor to a specific selector option group. <br>
+  Does not return meaningful information alone. Must be followed with the name and accessor of a specific property in the option group.</td>
+  </tr>
+</table>
+
+Example, `value`:
+
+`.properties.example_selector.filet_mignon_option.review.value`
+
+Accessors on Selector Option Group
+
+<table class="nice"><tr>
+  <td>parsed_manifest(manifest_snippet_name)</td>
+  <td>Returns a hash of the specific manifest snippet</td>
+  </tr>
+</table>
+
+Example, `selected_option`:
+
+`.properties.example_selector.selected_option.parsed_manifest(my_snippet)`
+
+Here, `my_snippet` corresponds to the name of an entry within each option\_template’s named\_manifests section.
+
+Example, option group:
+
+
+```
+- name: example_selector
+  type: selector
+  configurable: true
+  default: Pizza
+  freeze_on_deploy: true
+  option_templates:
+    - name: pizza_option
+      select_value: Pizza
+      named_manifests:
+        - name: my_snippet
+          manifest: |
+            pizza_toppings:
+              pepperoni: (( .properties.example_selector.pizza_option.pepperoni.value ))
+              pineapple: (( .properties.example_selector.pizza_option.pineapple.value ))
+              other: (( .properties.example_selector.pizza_option.other_toppings.value ))
+      property_blueprints:
+        - name: pepperoni
+          type: boolean
+          configurable: true
+          freeze_on_deploy: true
+        - name: other_toppings
+          type: string
+          configurable: true
+          optional: true
+          constraints:
+          - must_match_regex: '\A[^!@#$%^&*()]*\z'
+            error_message: 'This name cannot contain special characters.'
+    - name: filet_mignon_option
+      select_value: Filet Mignon
+      named_manifests:
+        - name: my_snippet
+          manifest: |
+            rarity: (( .properties.example_selector.filet_mignon_option.rarity_dropdown.value ))
+            review: (( .properties.example_selector.filet_mignon_option.review.value ))
+            secret_sauce: (( .properties.example_selector.filet_mignon_option.secret_sauce.value ))
+      property_blueprints:
+        - name: rarity_dropdown
+          type: dropdown_select
+          configurable: true
+          default: rare
+          options:
+            - name: rare
+              label: 'Rare'
+            - name: medium
+              label: 'Medium'
+            - name: well-done
+              label: 'Well done'
+        - name: secret_sauce
+          type: secret
+          configurable: true
+          optional: true
+```
+
+#### ldap\_url
+
+Ensures the inputted string matches a url of the ldap protocol
+
+Accessors
+
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+
+```
+- name: example_ldap_url
+  type: ldap_url
+  configurable: true
+  default: ‘ldap://example.com’
+```
+
+#### domain
+
+Ensures the string value is a domain
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+
+```
+- name: example_domain
+  type: domain
+  configurable: true
+  default: ’example.com’
+```
+
+#### wildcard\_domain
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr><tr>
+  <td>to_wildcard</td>
+  <td>Returns a string of the value prefixed with “*.” if not present</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_wildcard_domain
+  type: wildcard_domain
+  configurable: true
+  default: ‘*.example.com’
+```
+
+#### ip\_ranges
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string containing a comma-separated list of ip ranges</td>
+  </tr><tr>
+  <td>parsed_ip_ranges</td>
+  <td>Returns an array of strings for each ip range</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_ip_ranges
+  type: ip_ranges
+  configurable: true
+  default: ‘1.1.1.1-1.1.14,2.2.2.1-2.2.2.4’
+```
+
+#### ip\_address
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_ip_address
+  type: ip_address
+  configurable: true
+  default: ‘192.168.0.1’
+```
+
+#### email
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_string
+  type: email
+  configurable: true
+  default: ‘john@example.com’
+```
+
+#### port
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns an integer</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_port
+  type: port
+  configurable: true
+  default: 3000
+```
+
+#### integer
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns an integer</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_integer
+  type: integer
+  configurable: true
+  default: 100
+```
+
+#### text
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_text
+  type: text
+  configurable: true
+  default: |
+    Example
+    Text
+```
+
+#### smtp\_authentication
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string (possible values: plain, login, cram_md5)</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_smtp_authentication
+  type: smtp_authentication
+  configurable: true
+  default: plain
+```
+
+#### network\_address
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_network_address
+  type: network_address
+  configurable: true
+  default: ‘localhost’
+```
+
+#### network\_address\_list
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string containing a comma separated list of network addresses</td>
+  </tr><tr>
+  <td>parsed_network_addresses</td>
+  <td>Returns an array of strings for each network address</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_network_address_list
+  type: network_address_list
+  configurable: true
+  default: ‘localhost,1.1.1.1’
+```
+
+#### string\_list
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr><tr>
+  <td>parsed_strings</td>
+  <td>Returns an array of strings for each string entry</td>
+  </tr><tr>
+  <td>parsed_regex</td>
+  <td>Returns a string containing a regex of the format “^(string1|string2|string3)$” where the value of this property is“string1,string2,string3”</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_string_list
+  type: string_list
+  configurable: true
+  default: ‘foo,bar,baz’
+```
+
+#### ca\_certificate
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_ca_certificate
+  type: ca-certificate
+  configurable: true
+  default: |
+    -- BEGIN FAKE CERT --
+    -- END FAKE CERT --
+```
+
+#### multi\_select\_options
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns an array of strings for the selected options</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_multi_select_options
+  type: multi_select_options
+  configurable: true
+  default: [‘earth’, ‘mercury’]
+         options:
+         - name: mercury
+           label: ‘label for mercury’
+         - name: venus
+           label: ‘label for venus’
+         - name: earth
+           label: ‘label for earth’
+```
+
+#### dropdown\_select
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+   - name: example_dropdown
+      type: dropdown_select
+      configurable: true
+      default: kiwi
+      options:
+        - name: kiwi
+          label: 'label for kiwi'
+        - name: lime
+          label: 'label for lime'
+        - name: avocado
+          label: 'label for avocado'
+```
+
+#### vm\_type\_dropdown
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_vm_type_dropdown
+  type: vm_type_dropdown
+  configurable: true
+```
+
+#### disk\_type\_dropdown
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_disk_type_dropdown
+  type: disk_type_dropdown
+  configurable: true
+```
+
+#### uuid
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_uuid
+  type: uuid
+  configurable: true
+```
+
+#### service\_network\_az\_multi\_select
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_service_network_az_multi_select
+  type: service_network_az_multi_select
+  configurable: true
+```
+
+#### service\_network\_az\_single\_select
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_service_network_az_single_select
+  type: service_network_az_single_select
+  configurable: true
+```
+
+#### secret
+
+Holds a single boolean value
+
+Accessors
+
+<table class="nice"><tr>
+  <td>value</td>
+  <td>Returns a string</td>
+  </tr>
+</table>
+
+Example
+
+```
+- name: example_secret
+  type: secret
+  configurable: true
+```
+
+## <a id='top-level'></a> Top Level Properties
+
+The following is an example of the properties that appear at the top of a product template. Following this example are definitions of each property.
+
+  ```
+  ---
+  name: example-product
+  product_version: "1.7.0.0-alpha"
+  metadata_version: "1.7"
+  label: 'Ops Manager: Example Product'
+  description: An example product to demonstrate Ops Manager product-author features
+  rank: 1
+  stemcell_criteria:
+    os: ubuntu-trusty
+    version: "3191" # BOSH stemcell should match Ops Manager with same version
+  releases:
+    - name: example-release
+      file: example-release-11.tgz
+      version: "11"
+
+  post_deploy_errands:
+    - name: example-errand
+
+  pre_delete_errands:
+    - name: example-errand
+
+  icon_image: iVBORw0KGgoAAAANSUhEUgAAAUIAAADcCAYAAAAFtqgbAAAAAXNSR0IArs4c6QAAAAlwSFl...
+
+  ```
+
+### name
+String. Required.
+The internal name of the product. You must keep the name of your product consistent for migrations to function properly. Changing the name indicates the installation of a completely different product.
+
+### product_version
+String. Required.
+The version of the product. At present you can only import this version into Ops Manager once. If you intend to import the same product / version, you must delete the existing one from the /metadata folder and delete the installation files from Ops Manager's disk. The version number is important for [migrations](./migrations.html).
+
+### minimum\_version\_for\_upgrade
+String. Optional. Pivotal recommends that you set a minimum version for upgrading to your current product version. This example shows a current product version of 1.7 that only upgrades from a 1.6.x version of the same product:
+
+```
+- product_version:  1.7.0.0
+  minimum_version_for_upgrade:  1.6.0.0
+```
+
+### <a name='metadata'></a> metadata_version
+String. Required.
+The versioned structure of the product template (the file you are editing). Changing the version number can unlock new properties, and also break properties that changed from previous versions. The metadata version does not always correlate to Ops Manager version number and depends on what, or if, new metadata properties were introduced.
+
+### label
+String. Optional.
+The label that appears in the product tile when it displays in the Ops Manager Dashboard.
+
+### description
+String. Optional.
+A description of the product. This is not currently used but may be displayed in a future version of Ops Manager.
+
+### rank
+Integer. Required.
+The order in which a product tile appears on the dashboard. The Ops Manager Director always appears at rank 100. For your product to appear to the right of Ops Manager Director (preferable) you must set this value to an integer less than 100. It is recommended that you set it to 1. Ops Manager will sort tiles alphabetically if all tiles have the same rank. This is a known weak point and will be improved in a future version of Ops Manager.
+
+### stemcell_criteria
+Hash. Required.
+Refer to [the BOSH hub](https://bosh.io/) for a list of stemcells, including os and version. Notice that you do not specify which IaaS the Stemcell targets. This keeps your product template IaaS agnostic so that one product template can be deployed on any IaaS. At the time of this writing, none of the BOSH stemcells require a Cloud Provider Interface (CPI). This is expected to change in a future release of BOSH. 
+
+`enable_patch_security_updates` allows you to automatically use the latest patched version of a stemcell. This is by default set to `true`. For products using static compilations, you can disable this feature. If you set the property to `false`, your product will not receive security patches through automatic stemcell updates. 
+
+ ```
+ stemcell_criteria
+  enable_patch_security_updates: true
+ ```
+
+This feature increases security by automatically using the latest patched version of a stemcell. However, operators may experience longer than expected upgrade times. Review the [Understanding Floating Stemcells](http://docs.pivotal.io/pivotalcf/customizing/understanding-stemcells.html) topic for more information.
+
+### releases
+Array of Hashes. Required.
+The list of releases contained in your product's releases directory. The version of the release must be exactly the same as the version contained in the release (BOSH releases are versioned and signed by BOSH).
+
+### post\_deploy\_errands
+Array of Hashes. Optional.
+A list of errands that will run after a deploy succeeds. See [Lifecycle Errands](./lifecycle-errands.html). 
+
+### pre\_delete\_errands
+Array of Hashes. Optional.
+A list of errands that will run before a deployment is deleted. See [Lifecycle Errands](./lifecycle-errands.html). 
+
+## <a id='form-properties'></a> Form Properties
+
+The following is an example of the properties that appear in the form_types section of a product template. These forms appear on the left hand side, as links, after a user clicks on the tile itself.
+
+As shown in a later section, form properties reference property\_blueprints for the definition of the type of data (url, IP address, list, etc.) being saved. Form properties are themselves referenced in the manifest section of the job\_types section, which will also be explained later in this document. The eventual purpose of these properties is to hydrate a BOSH manifest, which Ops Manager generates on the user's behalf.
+
+Following this example are definitions of each property.
+
+  ```
+  form_types:
+    - name: example-form
+      label: Configurable Properties
+      description: All the properties that you can configure!
+      markdown: |
+      ## This is markdown.
+
+      ![Alt text](http://placekitten.com/g/400/200)
+
+      Things to do:
+
+      1. Learn [markdown](https://daringfireball.net/projects/markdown/).
+      1. ...
+      1. Describe your tile.
+      property_inputs:
+        - reference: .web_server.example_string
+          label: Example string
+          description: 'Configure a property of type string'
+        - reference: .web_server.example_string_with_placeholder
+          label: Example string containing Placeholder text
+          description: 'Optional field. Configuration not necessary'
+          placeholder: 'Ghost text. Spooky!'
+    - name: example_collections_form
+      label: 'Collection example'
+      description: 'A collection example form'
+      property_inputs:
+        - reference: .properties.example_collection
+          label: 'Albums collection'
+          description: 'The albums'
+          property_inputs:
+            - reference: album
+              label: 'Name of the Album'
+              description: 'ex Graceland'
+            - reference: artist
+              label: 'Name of the Artist'
+              description: 'ex Paul Simon'
+            - reference: explicit
+              label: 'Explicit?'
+              description: '$#!%&'
+    - name: example_selector_form
+      label: 'Selector Example'
+      description: 'A selector example form'
+      property_inputs:
+        - reference: .properties.example_selector
+          label: 'Food Choices'
+          selector_property_inputs:
+            - reference: .properties.example_selector.pizza_option
+              label: 'Pizza'
+              property_inputs:
+                - reference: .properties.example_selector.pizza_option.pepperoni
+                  label: 'Add Pepperoni'
+                - reference: .properties.example_selector.pizza_option.pineapple
+                  label: 'Add Pineapple'
+                - reference: .properties.example_selector.pizza_option.other_toppings
+                  label: 'Other toppings'
+            - reference: .properties.example_selector.filet_mignon_option
+              label: 'Filet Mignon'
+              property_inputs:
+                - reference: .properties.example_selector.filet_mignon_option.rarity_dropdown
+                  label: 'How rare?'
+  ```
+
+### name
+String. Required.
+The internal name of the form.
+
+### label
+String. Required.
+The label of the form as it appears as a link on the left hand side of each form.
+
+### description
+String. Optional.
+The description of the form. Appears at the top of the form as a header.
+
+### markdown
+Markdown. Optional.
+Provide a block of markdown to display at the top of the form. Includes image support. You can use this property to document the tile and provide explanations or references.
+
+### property_inputs
+Array of Hashes. Required.
+References to properties defined in the property_blueprints section of the product template.
+
+### placeholder
+String. Optional. Specify placeholder text for a field. The text appears in light gray to show an example value for the user. The text disappears when the user types in the field, and reappears if the user leaves the field empty.  
+
+ The `placeholder` attribute displays for the following form types:
+
+  * string
+  * integer
+  * domain
+  * wildcard_domain
+  * string_list
+  * text
+  * ldap_url
+  * email
+  * http_url
+  * ip_address
+  * ip_ranges
+  * network\_address\_list
+  * network_address
+  * port
+
+## <a id='simple-vs-complex'></a> Simple vs. Complex Inputs (Selectors and Collections)
+
+Most properties are simple values such as strings, integers, url addresses, or IP addresses. Others are complex, such as selectors or collections.
+
+Selectors are a means of giving the user a choice of a set of inputs. Collections are a means of giving the user the ability to enter an array of values to create a hash.
+
+Selectors appear as follows:
+
+<%= image_tag 'selector.png' %>
+
+Collections appear as follows:
+
+<%= image_tag 'collection.png' %>
+
+## <a id='property-blueprints'></a> Property Blueprints
+
+The following is an example of the property_blueprints that appear in a product template. These blueprints define anything that will eventually end up in the BOSH manifest generated by Ops Manager. 
+
+Note that one of these blueprints references a migrated value, which came from the Example Product v. 1.6 using [migrations](./migrations.html).  
+
+  ```
+    property_blueprints:
+      - name: example_string
+        type: string
+        configurable: true
+        default: 'Hello world'
+        constraints:
+          - must_match_regex: '^[^!@#$%^&*()]*$'
+            error_message: 'This name cannot contain capital digits.'
+          - must_match_regex: '^[^0-9]*$'
+            error_message: 'This name cannot contain digits.'
+      - name: example_migrated_integer
+        type: integer
+        configurable: true
+        default: 1
+      - name: example_collection
+        type: collection
+        configurable: true
+        property_blueprints:
+          - name: album
+            type: string
+          - name: artist
+            type: string
+          - name: explicit
+            type: boolean
+        default:
+          - album: Christmas Carols
+            artist: Ops Manatee
+            explicit: true
+      - name: example_selector
+        type: selector
+        configurable: true
+        default: Pizza
+        option_templates:
+          - name: pizza_option
+            select_value: Pizza
+            named_manifests:
+              - name: my_snippet
+                manifest: |
+                  pizza_toppings:
+                    pepperoni: (( .properties.example_selector.pizza_option.pepperoni.value ))
+                    pineapple: (( .properties.example_selector.pizza_option.pineapple.value ))
+                    other: (( .properties.example_selector.pizza_option.other_toppings.value ))
+            property_blueprints:
+              - name: pepperoni
+                type: boolean
+                configurable: true
+              - name: pineapple
+                type: boolean
+                configurable: true
+              - name: other_toppings
+                type: string
+                configurable: true
+                optional: true
+          - name: filet_mignon_option
+            select_value: Filet Mignon
+            named_manifests:
+              - name: my_snippet
+                manifest: |
+                  rarity: (( .properties.example_selector.filet_mignon_option.rarity_dropdown.value ))
+            property_blueprints:
+              - name: rarity_dropdown
+                type: dropdown_select
+                configurable: true
+                default: rare
+                options:
+                  - name: rare
+                    label: 'Rare'
+                  - name: medium
+                    label: 'Medium'
+                  - name: well-done
+                    label: 'Well done'
+  ```
+
+### configurable
+No property will be viewable in a form if unless `configurable` is set to `true`. Rather than giving the user the ability to enter a value, the value is generated by Ops Manager.
+
+### must\_match\_regex 
+Regular Expression. Optional. Create a validator that runs on the form save event. If the user input does not match the `must_match_regex` constraint, the form displays the specified `error_message`. Multiple `must_match_regex` constraints for a single property blueprint are evaluated in the order listed. 
+
+## <a id='configurable-props'></a> Configurable Properties
+
+Many of these properties are strings, but can be used with validators in order to check that the user typed in the correct format for a url, IP, address, domain, etc.
+
+### string
+A string.
+
+### integer
+An integer.
+
+### boolean
+A boolean. Viewed as a checkbox.
+
+### dropdown_select
+A list of options. The user chooses one viewed as an HTML select box.
+
+### domain
+A second, third, fourth, etc level domain.
+
+### wildcard_domain
+A domain with a wildcard in front of it. Example: `*.domain.com`
+
+### text
+A string. Appears as an HTML textarea.
+
+### ldap_url
+A url prefaced by `ldap://`.
+
+### email
+An email address.
+
+### ip_ranges
+A range of IP addresses, with dashes and commas allowed. Example: `1.1.1.1-1.1.1.4,2.2.2.1-2.2.2.4`
+
+### port
+An integer representing a network port.
+
+### network_address
+A single IP address or domain. Example: `1.1.1.1`
+
+### network\_address\_list
+A list of IP addresses or domains. Example: `1.1.1.1,example.com,2.2.2.2`
+
+### Generated Properties (can also be configurable)
+
+The following properties are configurable, but can also be generated by Ops manager if configurable is false, or the configurable key is omitted. The  exceptions are the uuid and salted credentials properties, which are never configurable.
+
+### rsa\_cert\_credentials
+An RSA certificate.
+
+### rsa\_pkey\_credentials
+An RSA private key.
+
+### salted_credentials
+Username and password created using a non-reversible hash algorithm.
+
+### simple_credentials
+Username and password.
+
+### secret
+A random string or password.
+
+### uuid
+A universal unique identifier.
+
+### Complex Properties (Selectors and Collections)
+
+The selector and collections inputs are referenced by their selector and collection property blueprints. These are more complicated than simple properties in that they contain manifest snippets, which are further referenced in other manifest snippets. We will learn about manifest snippets in the next section.
+
+## <a id='job-types'></a> Job Types
+
+The following is an example of the job_types section that appear in a product template. This section defines the jobs that end up in a BOSH Manifest. Those jobs are defined in your BOSH Release. Jobs require many different settings in order to function properly, and that is the crux of what Ops Manager does for you: it asks a user for values to those settings, and generates a manifest based on what was entered.
+
+Ops Manager does not require product authors to provide `vm_credentials` in the `property_blueprints` for each `job_type`. `vm_credentials` are generated automatically, and you can find them in the release manifest. 
+
+```
+job_types:
+  - name: web_server
+    resource_label: Web Server
+    templates:
+      - name: web_server
+        release: example-release
+      - name: time_logger
+        release: example-release
+    release: example-release
+    static_ip: 1
+    dynamic_ip: 0
+    max_in_flight: 1
+    single_az_only: true
+    instance_definition:
+      name: instances
+      type: integer
+      configurable: true
+      default: 1
+      constraints:
+        max: 1
+      zero_if:
+        property_reference: '.web_server.example_text'
+        property_value: 'magic value'
+    resource_definitions:
+      - name: ram
+        type: integer
+        configurable: true
+        default: 1024
+      - name: ephemeral_disk
+        type: integer
+        configurable: true
+        default: 2048
+      - name: persistent_disk
+        type: integer
+        configurable: true
+        default: 1024
+        constraints:
+          min: 1024
+      - name: cpu
+        type: integer
+        configurable: true
+        default: 1
+    property_blueprints:
+    - name: static_ips
+      type: ip_ranges
+      configurable: true
+      optional: true
+    - name: generated_rsa_cert_credentials
+      type: rsa_cert_credentials
+    - name: generated_rsa_pkey_credentials
+      type: rsa_pkey_credentials
+    - name: generated_salted_credentials
+      type: salted_credentials
+    - name: generated_simple_credentials
+      type: simple_credentials
+    - name: generated_secret
+      type: secret
+    - name: generated_uuid
+      type: uuid
+    - name: example_string_with_placeholder
+      type: string
+      configurable: true
+      optional: true
+      placeholder: 'Configure me!'
+    - name: example_string
+      type: string
+      configurable: true
+      default: 'Hello world'
+      constraints:
+      - must_match_regex: '^[^!@#$%^&*()]*$'
+        error_message: 'This name cannot contain capital digits.'
+      - must_match_regex: '^[^0-9]*$'
+        error_message: 'This name cannot contain digits.'
+    - name: example_migrated_integer
+      type: integer
+      configurable: true
+      default: 1
+    - name: example_boolean
+      type: boolean
+      configurable: true
+      default: true
+    - name: example_dropdown
+      type: dropdown_select
+      configurable: true
+      default: kiwi
+      options:
+        - name: kiwi
+          label: 'label for kiwi'
+        - name: lime
+          label: 'label for lime'
+        - name: avocado
+          label: 'label for avocado'
+    - name: example_domain
+      type: domain
+      configurable: true
+      default: www.example.com
+    - name: example_wildcard_domain
+      type: wildcard_domain
+      configurable: true
+      default: 'example.com'
+    - name: example_string_list
+      type: string_list
+      configurable: true
+      default: 'a,list,of,strings'
+    - name: example_text
+      type: text
+      configurable: true
+      default: 'some_text'
+    - name: example_ldap_url
+      type: ldap_url
+      configurable: true
+      default: 'ldap://example.com'
+    - name: example_email
+      type: email
+      configurable: true
+      default: foo@example.com
+    - name: example_http_url
+      type: http_url
+      configurable: true
+      default: 'http://www.example.com'
+    - name: example_ip_address
+      type: ip_address
+      configurable: true
+      default: '192.168.0.1'
+    - name: example_ip_ranges
+      type: ip_ranges
+      configurable: true
+      default: '1.1.1.1-1.1.1.4,2.2.2.1-2.2.2.4'
+    - name: example_multi_select_options
+      type: multi_select_options
+      configurable: true
+      default: ['earth', 'jupiter']
+      options:
+        - name: mercury
+          label: 'label for mercury'
+        - name: venus
+          label: 'label for venus'
+        - name: earth
+          label: 'label for earth'
+        - name: mars
+          label: 'label for mars'
+        - name: jupiter
+          label: 'label for jupiter'
+        - name: saturn
+          label: 'label for saturn'
+        - name: uranus
+          label: 'label for uranus'
+        - name: neptune
+          label: 'label for neptune'
+    - name: example_network_address_list
+      type: network_address_list
+      configurable: true
+      default: '1.1.1.1,example.com,foo.bar.example.com'
+    - name: example_network_address
+      type: network_address
+      configurable: true
+      default: '1.1.1.1'
+    - name: example_port
+      type: port
+      configurable: true
+      default: 1111
+    - name: example_smtp_authentication
+      type: smtp_authentication
+      configurable: true
+      default: plain
+    - name: client_certificate
+      type: ca_certificate
+      configurable: true
+      optional: true
+    manifest: |
+      generated:
+        root_rsa_certificate: (( $ops_manager.ca_certificate ))
+        rsa_cert_credentials:
+          public_key_pem: (( generated_rsa_cert_credentials.public_key_pem ))
+          cert_and_private_key_pems: (( generated_rsa_cert_credentials.cert_and_private_key_pems ))
+        rsa_pkey_credentials:
+          public_key_pem: (( generated_rsa_pkey_credentials.public_key_pem ))
+          private_key_pem: (( generated_rsa_pkey_credentials.private_key_pem ))
+          public_key_openssh: (( generated_rsa_pkey_credentials.public_key_openssh ))
+          public_key_fingerprint: (( generated_rsa_pkey_credentials.public_key_fingerprint ))
+        salted_credentials:
+          sha512_hashed_password: (( generated_salted_credentials.sha512_hashed_password ))
+          identity: (( generated_salted_credentials.identity ))
+          salt: (( generated_salted_credentials.salt ))
+          password: (( generated_salted_credentials.password ))
+        simple_credentials:
+          identity: (( generated_simple_credentials.identity ))
+          password: (( generated_simple_credentials.password ))
+        secret: (( generated_secret.value ))
+        uuid: (( generated_uuid.value ))
+      configured:
+        string: (( example_string.value ))
+        integer: (( example_migrated_integer.value ))
+        ...
+        record_collection: (( .properties.example_collection.value || [] ))
+        selector: (( .properties.example_selector.selected_option.parsed_manifest(my_snippet) ))
+      ops_manager_provided_accessors:
+        name: (( name ))
+        ram: (( ram ))
+        ephemeral_disk: (( ephemeral_disk ))
+        persistent_disk: (( persistent_disk ))
+        instances: (( instances ))
+        availability_zone: (( availability_zone ))
+        first_ip: (( first_ip ))
+        ips: (( ips ))
+        ips_by_availability_zone: (( ips_by_availability_zone ))
+        bosh_job_partition_stats: (( bosh_job_partition_stats ))
+```
+
+### name
+String. Required.
+The name of the job as it will be created in the Ops Manager generated BOSH manifest.
+
+### resource_label
+String. Required.
+The label of the job as it will appear in the resources page of the tile.
+
+### templates
+Array of Hashes. Required.
+This is a BOSH feature (creating jobs from different releases). See the [BOSH documentation](https://bosh.io/) for more information.
+
+### release
+String. Required.
+The name of the BOSH release contained in your product archive (.pivotal file).
+
+### static_ip
+Boolean. Required.
+Sets whether the BOSH job should have a static or dynamic IP. Static IPs are set by the user, and reserved, while Dynamic IPs are set by BOSH. Both are, in effect, static, in that they should not change between deployments.
+
+### dynamic_ip
+Boolean. Required.
+Set the opposite of static_ip. This will eventually be eliminated as a property as it is obviously redundant and unnecessary.
+
+### single\_az\_only
+Boolean. Required. You can give users control of balancing jobs across availability zones (AZs) by setting `single_az_only` to `false`. To limit a job to a single AZ, set this to `true`. 
+
+### max\_in\_flight
+Integer. Required.
+A BOSH setting that controls the number of instances of this job that BOSH will deploy in parallel.
+
+### resource_definition
+Array of Hashes. Required.
+A set of resource settings for the job along with max and min constraints, defaults, and whether or not the user can configure (change) the setting. The resources that can be set are:
+
+- ram
+- ephemeral_disk
+- persistent_disk
+- cpu
+
+<p class="note"><strong>Note: </strong>If you set the <code>default</code> property for <code>persistent_disk</code> to <code>0</code>, users cannot edit this value and the <strong>Resource Config</strong> page in <strong>Ops Mananger</strong> displays <strong>None</strong> under the persistent disk field.</p>
+
+### instance_definition
+Hash. Required.
+The number of default instances for a job along with max, min, odd, and the ability to decrease sizing after deploy constraints.
+
+If your product uses an external service that performs the same job as a service in Elastic Runtime, you can reduce resource usage by setting the instance count of a job to `0` with the `zero_if` property. For example, your product uses Amazon Relational Database Service (RDS) instead of MySQL, which is the default system database for Elastic Runtime. Set `property reference` to `.properties.system.database` and `property value` to `magic value` to change the instance counts of all MySQL jobs to `0`. 
+
+### manifest
+Text Snippet, prefaced by pipe symbol: **|**. Optional.
+A BOSH manifest will be created by Ops Manager. The sections of that manifest will include each job, and the properties for that job. These properties come directly from the manifest snippet here, and use a syntax known as "double-parens" which consists of a variable name surrounded by two sets of parentheses.
+
+The double-parens syntax will be evaluated when a user clicks the Apply Changes button in Ops Manager. A manifest is created and the double-parens variables are evaluated. The values, either entered by a user, or generated by Ops Manager, are dynamically inserted in place of the double-parens references.
+
+### Selector Manifest Snippets
+
+Selector snippets are evaluated twice. As you saw in the property_blueprint, the selector has a manifest snippet for both sets of inputs that the user might choose. Only one of these sets is evaluated and inserted into the job's manifest.
+
+### Ops Manager Provided Snippets
+
+The following double-parens accessors retrieve your job properties:
+
+  * ops\_manager\_provided\_accessors:
+  * name: (( name ))
+  * ram: (( ram ))
+  * ephemeral\_disk: (( ephemeral\_disk ))
+  * persistent\_disk: (( persistent\_disk ))
+  * instances: (( instances ))
+  * availability\_zone: (( availability\_zone ))
+  * first\_ip: (( first\_ip ))
+  * ips: (( ips ))
+  * ips\_by\_availability\_zone: (( ips\_by\_availability\_zone ))
+  * bosh\_job\_partition\_stats: (( bosh\_job\_partition\_stats ))
+
+In addition, Ops Manager supports accessors that are global to the entire installation rather than job specific. Currently, the only such accessor is `$ops_manager.ca_certificate`, which is the internal SSL CA certificate used to sign all SSL certificates generated by this Ops Manager instance, such as when the user clicks a **Generate Self-Signed RSA Certificate** link.
+
+
+

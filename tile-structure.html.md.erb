@@ -1,0 +1,73 @@
+---
+title: Tile Functions and Structure
+owner: Services
+---
+
+## <a id='structure'></a>Tile Structure
+
+Product tiles make it easy for cloud operators to offer new and upgraded software services to developers in a Pivotal Cloud Foundry (PCF) deployment. [Pivotal Network](https://network.pivotal.io) distributes tiles as zipped code directories, and this topic describes the format that these directories follow. To create a tile, you create a directory following this format, and include BOSH releases that instantiate your service within PCF.
+
+The PCF tile format ensures that tiles install and upgrade easily, have a PCF-friendly configuration interface, run pre- and post-deploy errands, generate credentials, publish a catalog of available services to the **Services Marketplace**, and perform other under-the-hood functions that streamline service deployment and use.
+
+### <a id='file-structure'></a>File Structure
+
+You create a `.pivotal` file from a directory structured like this:
+
+```
+.
+├── example-product
+│   ├── metadata
+│   │   └── example-product.yml
+│   ├── migrations
+│   │   └── v1
+│   │       ├── 201512301616_convert_14_transmogrifier_rules.js
+│   │       ├── 201512301631_convert_15_16_transmogrifier_rules.js
+│   │       └── 201611060205_example_migration.js
+│   └── releases
+│       └── example-release-18.tgz
+```
+
+The three required top-level subdirectories in a `.pivotal` tile directory are:
+
+* `metadata` - high-level information for configuring and publishing your service.
+* `migrations` - rules that govern tile upgrades.
+* `releases` - the BOSH releases that deploy your service.
+
+### <a id='dot-pivotal'></a>Building the .pivotal file
+
+A `.pivotal` file is simply a gzipped tarfile of the tile directory with the `.tgz` extension renamed to `.pivotal`. You can use any zip utility to create a `.pivotal` file. Ensure that the top-level subfolders as seen above in the `example-product` folder remain.
+
+#### Example workflow
+
+<pre class='terminal'>
+$ cd example-product
+$ zip -r example-product.pivotal metadata/ migrations/ releases/
+$ unzip -l example-product.pivotal
+Archive:  example-product.pivotal
+  Length     Date   Time    Name
+ --------    ----   ----    ----
+        0  08-09-16 16:10   metadata/
+    89458  08-09-16 16:10   metadata/example-product.yml
+        0  07-08-16 09:32   migrations/
+        0  07-08-16 09:32   migrations/v1/
+      423  07-08-16 09:32   migrations/v1/201512301616_convert_14_transmogrifier_rules.js
+     1228  07-08-16 09:32   migrations/v1/201512301631_convert_15_16_transmogrifier_rules.js
+      582  07-08-16 09:32   migrations/v1/201611060205_example_migration.js
+        0  08-09-16 16:11   releases/
+        0  07-12-16 17:19   releases/example-release-18.tgz
+</pre>
+
+### <a id='bosh'></a>Relationship to BOSH Releases
+
+Tiles serve as wrappers for BOSH releases and perform additional functions like managing configuration and upgrades in the Ops Manager Installation Dashboard. To build a tile, you need to know how BOSH releases are structured, and how tiles are constructed to include BOSH releases. If your product has different numbered releases, you can package multiple BOSH releases within a single tile. 
+
+### <a id='template-ref'></a>Product Template Reference
+
+The product template includes the following sections:
+
+* Metadata: high level information about your tile
+* Dependencies: how to specify product dependencies
+* Property Blueprints: the building blocks of representing values
+* Form Types: exposing property blueprints into generated forms
+* Jobs
+

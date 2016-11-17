@@ -1,4 +1,26 @@
 ---
-title: 
-owner: 
+title: Development Roadmap
+owner: Services
 ---
+
+Pivotal recommends that developers create service tiles iteratively, starting at the lowest level of integration and successively re-developing their code for increasing [levels of integration](./levels.html).
+
+These topics map out this iterative development process.
+
+1. [Level 1: User-Provided Service](#user-provided)
+
+1. [Level 2: Brokered Service](./brokered.html)
+
+1. [Level 3: Managed Service](./managed.html)
+
+1. [Level 4: On-Demand Service](./on-demand.html)
+
+## <a id="user-provided"></a>Level 1: User-Provided Service
+
+A PCF developer can call any service from their app code, even if the service runs outside of PCF and has no service broker. To do this, they do the following from the the Cloud Foundry Command-Line Interface (cf CLI).
+
+1. Run `cf create-user-provided-service` (or `cf cups`) to create a service instance.
+
+1. Run `cf bind-service` to bind the service instance to their app.
+
+This do-it-yourself solution represents the lowest level of PCF service integration. It works only for services that TK and TK, and it cannot TK. See the [User-Provided Service Instances](../pivotalcf/devguide/services/user-provided.html) topic for more information.

@@ -1,4 +1,92 @@
 ---
-title: 
-owner: 
+title: BOSH Release
+owner: Services
 ---
+
+## How to Build a Managed Service
+
+A managed service is a service deployed on Cloud Foundry infrastructure
+(in other words, the same IaaS that your particular Cloud Foundry instance
+is deployed on) by the same orchestration tool, [bosh](http://bosh.io).
+Offering your software as a managed service means that your PCF customers
+will not have to learn different ways to deploy, manage, and monitor
+different components of their application platform.
+
+For bosh to manage your service, the major components needed are:
+
+- **Packages** that can be installed on PCF stemcells to create virtual machine images
+- **Jobs** that describe how to install, run, and remove your software
+- A **Monitor** script, that describes how to monitor the health of your
+service components and stop or restart them
+
+### BOSH overview
+
+- [BOSH Documentation](http://bosh.io/docs)
+- [BOSH Problem Statement](http://bosh.io/docs/problems.html)
+- [BOSH Basic Workflow](http://bosh.io/docs/basic-workflow.html)
+
+### Creating a BOSH Release
+
+- [Creating a Release](http://bosh.io/docs/create-release.html)
+- [Defining your Jobs](http://bosh.io/docs/jobs.html)
+- [Defining your VMs](http://bosh.io/docs/vm-struct.html)
+- [Monitoring the Health of your Service](http://bosh.io/docs/monitoring.html)
+
+### Shortcut - Start with Docker images
+
+If you have already packaged your service as docker images, you can emulate
+a managed service deployment using the [Tile Generator](tile-generator.md)'s
+support for docker-bosh packages. This feature lets you deploy pre-existing
+docker images into bash managed virtual machines on the PCF infrastructure.
+
+While this is a great, easy way to deploy your service on PCF, we don't
+recommend this as a long-term, production-ready solution. There is really no
+benefit of running your service in containers on the VMs, and it does have
+a number of operational ("day 2") drawbacks:
+
+- You introduce more software (docker) which needs to be kept up-to-date, and
+has the potential for bugs, downtime, and security vulnerabilities.
+- You can no longer take advantage of the patching capabilities of PCF for
+stemcells and application dependencies, like frameworks and libraries. Instead,
+you become directly responsible for managing all software that is in the docker
+images you deploy.
+
+## How to Create a Buildpack
+
+- [Creating a custom buildpack](http://docs.pivotal.io/pivotalcf/buildpacks/custom.html)
+
+### Official buildpacks
+
+- [Java buildpack](https://github.com/cloudfoundry/java-buildpack) (by far the most compicated!)
+- [Go buildpack](https://github.com/cloudfoundry/go-buildpack)
+- [Ruby buildpack](https://github.com/cloudfoundry/ruby-buildpack)
+- [Node.js buildpack](https://github.com/cloudfoundry/nodejs-buildpack)
+- [Python buildpack](https://github.com/cloudfoundry/python-buildpack)
+- [PHP buildpack](https://github.com/cloudfoundry/php-buildpack)
+- [Static file buildpack](https://github.com/cloudfoundry/staticfile-buildpack) (for static web content)
+- [Binary buildpack](https://github.com/cloudfoundry/binary-buildpack)
+
+### Other buildpacks
+
+- [Meta-buildpack](https://github.com/guidowb/meta-buildpack)
+- [Spring Config decorator buildpack](https://github.com/guidowb/spring-config-decorator)
+
+
+## How to Build an Embedded Agent
+
+Some integrations depend on the ability to inject code into the application container.
+Examples of this include:
+
+- Application Performance Monitoring (APM) agents
+- Container-embedded API gateways
+- Client-side routers
+
+We refer to these injected components as "container-embedded agents".
+[Buildpacks](buildpacks.md) provide a mechanism to inject components into the application
+container image, and the `.profile.d` directory provides a way to start agents before or
+alongside the customer application.
+
+- [Agent Injection with the meta-buildpack](https://github.com/guidowb/meta-buildpack)
+- [Using .profile.d](http://docs.pivotal.io/pivotalcf/devguide/deploy-apps/deploy-app.html#profiled)
+
+
