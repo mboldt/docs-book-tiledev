@@ -43,7 +43,7 @@ them as a tile.
 
 In most cases, you will not need a full PCF installation to complete these
 early phases. You can set up a
-[light-weight PCF development environment](setup-pcfdev.md) on your laptop
+[light-weight PCF development environment](setup-pcfdev.html) on your laptop
 or desktop, possibly including bosh-lite if your are developing managed
 services.
 
@@ -51,7 +51,7 @@ services.
 ## Describe and Generate your Tile
 
 *After* your components are in working order, download and install the
-[Tile Generator](tile-generator.md) and follow the instructions to describe
+[Tile Generator](tile-generator.html) and follow the instructions to describe
 and generate your actual tile. This is where you list all the components that
 are to be included, add an icon and a description, and have the option to add
 forms for values that are to be configured by the PCF operator at installation
@@ -61,10 +61,10 @@ time.
 ## Test the Deploy and Delete Errands
 
 This is the first step for which you will need a
-[complete PCF deployment](setup-pcf.md). But before you deploy your complete
+[complete PCF deployment](setup-pcf.html). But before you deploy your complete
 tile to Ops Manager, you can manually deploy your individual
 [components](#components) and test the errands created by the Tile Generator
-using the [pcf utility](pcf-command.md#errands). Doing this is significantly
+using the [pcf utility](pcf-command.html#errands). Doing this is significantly
 faster than testing the errands through Ops Manager and bosh, as bosh will
 run each errand in a newly created virtual machine.
 

@@ -33,7 +33,7 @@ A typical CI pipeline for a tile consists of the following jobs:
 - Remove it from PCF
 
 You describe this pipeline in a pipeline.yml file that is then uploaded to the
-concourse server. [Tile Generator](tile-generator.md) contains a sample
+concourse server. [Tile Generator](tile-generator.html) contains a sample
 pipeline that you can clone for your own tile. We are working on automating
 the process of generating a pipeline template for you.
 
@@ -43,7 +43,7 @@ the process of generating a pipeline template for you.
 Pivotal partners who have us host their pipeline have access to a pool of PCF
 instances that are managed by us and are regularly updated with the latest
 (pre-)release versions of PCF. If you set up your own concourse server, you
-will have to target your pipeline at a [PCF instance you have setup](setup-pcf.md).
+will have to target your pipeline at a [PCF instance you have setup](setup-pcf.html).
 
 Concourse has a resource type to manage a pool of resources that are shared
 between pipelines, which is what we use to serialize PCF access between the
