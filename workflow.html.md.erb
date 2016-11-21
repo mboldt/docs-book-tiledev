@@ -40,7 +40,7 @@ There are many ways to integrate products with Cloud Foundry.
 The right one for each product depends on what the product does, and how
 customer applications consume it. To determine the best way to integrate your
 product, you'll need a good understanding of
-[Cloud Foundry concepts](cf-concepts.md)
+[Cloud Foundry concepts](cf-concepts.html)
 like applications, containers, services, brokers, and buildpacks.
 
 ### <a id="scope"></a>  2. Set Scope of Integration
@@ -49,11 +49,11 @@ With sufficient understanding of both your product, and the basics of PCF tiles,
 you are in a position to decide what the integration looks like, and what level of integration you want to target. Integration
 points might include:
 
-- [Service Brokers](cf-concepts.md#service-brokers)
-- [Managed Services](stages.md#managed)
-- [Buildpacks](cf-concepts.md#buildpacks)
-- [Embedded Agents](cf-concepts.md#agents)
-- [Nozzles](cf-concepts.md#nozzles)
+- [Service Brokers](cf-concepts.html#service-brokers)
+- [Managed Services](stages.html#managed)
+- [Buildpacks](cf-concepts.html#buildpacks)
+- [Embedded Agents](cf-concepts.html#agents)
+- [Nozzles](cf-concepts.html#nozzles)
 - Or any combination of the above
 
 If you are not already intimately familiar with PCF, this is one of the
@@ -69,25 +69,25 @@ environments that are operated and managed by Pivotal. If you are not (yet)
 in our program, need a dedicated environment, or want to be able to work
 offline, you can set up a PCF environment on:
 
-- [Developer desktop/laptop](setup-pcfdev.md)
-- [Supported public or private infrastructure (IaaS)](setup-pcf.md#setup)
+- [Developer desktop/laptop](setup-pcfdev.html)
+- [Supported public or private infrastructure (IaaS)](setup-pcf.html#setup)
 
 You will then also need to learn to operate and upgrade PCF by yourself:
 
-- [Operating a PCF environment](setup-pcf.md#operations)
-- [Upgrading a PCF environment](setup-pcf.md#upgrade)
+- [Operating a PCF environment](setup-pcf.html#operations)
+- [Upgrading a PCF environment](setup-pcf.html#upgrade)
 
 ### <a id="learn-to-build"></a>  4. Learn How to Build
 
 Depending on the selected type of integration, you will need to learn
 how to build one or more of:
 
-- [Service brokers](service-brokers.md)
-- [Managed services](managed-services.md)
-- [Dynamic services](dynamic-services.md)
-- [Buildpacks](buildpacks.md)
-- [Embedded agents](embedded-agents.md)
-- [Nozzles](nozzles.md)
+- [Service brokers](service-brokers.html)
+- [Managed services](managed-services.html)
+- [Dynamic services](dynamic-services.html)
+- [Buildpacks](buildpacks.html)
+- [Embedded agents](embedded-agents.html)
+- [Nozzles](nozzles.html)
 
 Self-learning is definitely possible. If you are interested in more
 organized learning, Pivotal provides many different classes and labs for
@@ -98,45 +98,45 @@ if your are interested in learning more about this.
 
 A critical component is to develop consuming applications to validate that your tile works under diverse demands. Those can be real customer applications, or test applications that are deployed to PCF.
 
-- [Developing applications](cf-concepts.md#applications)
-- [Binding services](cf-concepts.md#services)
+- [Developing applications](cf-concepts.html#applications)
+- [Binding services](cf-concepts.html#services)
 
 ### <a id="develop"></a> 6. Develop Your Tile
 
-Once the design is established and validated, and the first [stage](stages.md)
+Once the design is established and validated, and the first [stage](stages.html)
 has been defined, you would start actual development of your tile.
 
-- [Develop and test the individual components](development.md#components)
-- [Generate your tile](development.md#tile-generator)
-- [Test the deploy and delete errands](development.md#test-errands)
-- [Deploy and test your tile](development.md#deploy)
+- [Develop and test the individual components](development.html#components)
+- [Generate your tile](development.html#tile-generator)
+- [Test the deploy and delete errands](development.html#test-errands)
+- [Deploy and test your tile](development.html#deploy)
 
 Pivotal is a strong believer in lean and agile development and the notion
 of delivering a Minimal Viable Product (MVP) to our customers as quickly
-as possible. So we always look for [staged approaches](stages.md) to
+as possible. So we always look for [staged approaches](stages.html) to
 the development of the integration, and only plan the upcoming stage in
 great detail.
 
 In most cases, there is a very rapid way to do a proof-of-concept of the
 proposed integration. For instance, if you are building a service, you
 can often emulate the availability of a brokered, managed, or dynamic
-service by setting up a [user-provided service](stages.md#ups)
+service by setting up a [user-provided service](stages.html#ups)
 for an existing instance of your service. That will let you validate
 the integration design before you make a large development investment,
 and it will let real consumers weigh in on development priorities.
 
 ### <a id="workflow"></a> 7. Publish and Document Your Tile
 
-- [Work with Pivotal to publish your tile](contacts.md)
-- [Complete the documentation](tile-documentation.md)
+- [Work with Pivotal to publish your tile](contacts.html)
+- [Complete the documentation](tile-documentation.html)
 
 ### <a id="workflow"></a> 8. Maintain Your Tile
 
-- [Set up a Concourse Server](concourse.md#server)
-- [Set up a Concourse Pipeline](concourse.md#pipeline)
-- [Create a target PCF pool](concourse.md#pool)
+- [Set up a Concourse Server](concourse.html#server)
+- [Set up a Concourse Pipeline](concourse.html#pipeline)
+- [Create a target PCF pool](concourse.html#pool)
 
-- [Upgrading tiles](tile-generator.md#upgrades)
+- [Upgrading tiles](tile-generator.html#upgrades)
 
 
 
