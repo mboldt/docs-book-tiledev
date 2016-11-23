@@ -21,17 +21,23 @@ If you are new to this site, [**start here**](./workflow.html).
 
 The contents of this guide follow Pivotal's recommended tile development [workflow](./workflow.html), from learning necessary background information to publishing and maintaining a finished product:
 
-* [Tile Basics](./tile-basics.html) describes how PCF, service brokers, and tiles work together.
+* [Tile Basics](./tile-basics.html) describes how PCF, service brokers, and tiles work together, and how tiles are structured.
 
-* [Service Integration Strategy](./strategy.html) recommends how to plan your integration, iterating the development through increasing levels of integration and scoping it to finish at the best level for your current needs.
-
-* [Development Environments](./environment.html) describes how to set up development environments for the tile development process, at different integration levels.
-
-* [Development Roadmap](./roadmap.html) takes you through the staged tile development process using the [Tile Generator](./tile-generator.html) tool, and iterating until you reach your target integration level.
+* [Development Workflow](./workflow.html) recommends how to plan your integration and gives a high-level view of a staged tile development process that iterates through increasing levels of integration:
 	- [User-Provided Service](./roadmap.html#user-provided)
 	- [Brokered Service](./brokered.html)
 	- [Managed Service](./managed.html)
 	- [On-Demand Service](./odb-sdk.html)
+
+	using the [Tile Generator](./tile-generator.html) tool, and 
+
+iterating the development through increasing levels of integration and scoping it to finish at the best level for your current needs.
+
+* [Development Environments](./environments.html) describes how to set up development environments for different stages and levels in the tile development process.
+
+* [Development Tools](./tools.html) describes three tools that streamline the tile development process: [Tile Generator](./tile-generator.html), the [pcf Command Line](./pcf-command.html) utility, and [Concourse](./concourse.html) continuous integration (CI).
+
+* [Development Roadmap](./roadmap.html) takes you through the staged tile development process, explaining the components and steps required for each level of integration.
 
 * [Publish and Document](./publish.html) shows how to publish your tile on [PivNet](http://network.pivotal.io) and document it as part of [PCF documentation](http://docs.pivotal.io).
 

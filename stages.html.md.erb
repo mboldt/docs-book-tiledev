@@ -3,29 +3,27 @@ title: Levels of Integration
 owner: Services
 ---
 
+## <a id="levels"></a> Integration Levels
+
+A service can integrate with PCF at four levels, shown here in order of increasing integration. In general, user-experience and production-readiness improves as the integration level increases. But none of the later stages is required. You can stop service integration and declare it complete (enough) after any of these:
+
 When integrating third-party software with Cloud Foundry, the integration
 typically progresses through the same set of stages. We recommend this
 staged approach because it enables early feedback on the value and the
 design of the integration, which helps make better decisions about future
 stages.
 
-For service type integrations, the typical stages of integration are:
-
-1. User-Provided Service
-2. Brokered Service
-3. Managed Service
-4. Dynamic Service
-
-Each of these is described in more detail below. In general, user-experience
-and production-readiness improves as the integration
-progresses through the stages. But none of the later stages is required.
-Integration can stop and be declared complete (enough) after any of these.
 
 For non-service integrations (such as applications or buildpacks), a similar
 staged integration approach is often possible and desirable.
 
+![Service Integration Stages](img/integration-stages.png)
+
 <a name="ups"></a> 
 ## Stage 1. User-Provided Service
+
+The service runs external to PCF and has no service broker or tile. To use a service with an app, the developer creates a Cloud Foundry service broker by running `cf create-user-provided-service` from the Cloud Foundry Command-Line Interface (cf CLI).  
+	- Configuring, running, upgrading, and paying for a user-provided service is all up to the developer.
 
 Either your software is available as a SaaS-offering, or you already have a
 way to install software on-premise at a customer site. Or also likely, your
@@ -58,6 +56,10 @@ brokered service bindings.
 <a name="broker"></a> 
 ## Stage 2. Brokered Service
 
+The service runs external to PCF, but has a tile on [Pivotal Network](http://network.pivotal.io) (PivNet). Operators install, configure, and upgrade the tile through the Ops Manager Installation Dashboard.  
+	- For services used by app developers, the developer uses the cf CLI or Apps Manager to choose service plans, create service instances, and bind them to their apps.  
+	- PivNet designates brokered services by including "Service Broker for PCF" in the name.
+
 The first real improvement in user experience is achieved by creating a
 [Service Broker](service-brokers.html) for your service. Service brokers allow
 you to expose your services and plans in the `cf marketplace`, from which
@@ -72,6 +74,10 @@ customers who have both your software and PCF.
 
 <a name="managed"></a> 
 ## Stage 3. Managed Service
+
+Both the service broker and the service itself run within PCF. This enables PCF to manage, monitor, and increase service performance. As with the brokered service, the service has a service broker and a tile listed on PivNet.  
+	- When the operator installs the tile, they allocate a block of VMs to run service instances and provisions their CPU and memory resources uniformly.  
+	- PivNet lists managed services as "for PCF," without "Service Broker" in the name.
 
 The next step is to get your service to actually be deployed on PCF rather
 than externally as you've traditionally done it. This is usually one of the
@@ -103,7 +109,11 @@ resources across multiple availability zones or even regions, and replicating
 your persistent storage across those as well.
 
 <a name="dynamic"></a> 
-## Stage 4. Dynamic Service
+## Stage 4. On-Demand (Dynamic) Service
+
+Service broker and service both run within PCF, and the service has a tile. But unlike the managed service, the operator does not allocate and provision resources for service instances. When a developer creates an instance, they provision its resources (within an allowed range) and BOSH dynamically creates a VM for the instance.  
+	- On-Demand services are also called "dynamic" services.  
+	- PivNet lists on-demand services without "Service Broker" in the name.
 
 All prior stages assume that you have a single instance of your software
 deployed. That instance can be multi-tenant, and it can possibly be manually

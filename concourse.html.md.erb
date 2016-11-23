@@ -1,4 +1,4 @@
-# Concourse Continuous Integration
+# Concourse CI
 
 Cloud Foundry is a fast moving platform as we are constantly extending and
 enhancing it. When you integrate your software with Cloud Foundry, it is
@@ -8,9 +8,9 @@ pipeline for your tile against a PCF deployment that is constantly updated
 with the latest Alpha release of the platform.
 
 Our tool of choice for setting up CI is [concourse](http://concourse.ci/).
-While you are of course free to use whetever system you are familiar with,
+While you are of course free to use whatever system you are familiar with,
 our tools and documentation are built to make concourse CI as easy as
-pssoble.
+possible.
 
 <a name="server"></a> 
 ## Setting up a Concourse Server
@@ -43,7 +43,7 @@ the process of generating a pipeline template for you.
 Pivotal partners who have us host their pipeline have access to a pool of PCF
 instances that are managed by us and are regularly updated with the latest
 (pre-)release versions of PCF. If you set up your own concourse server, you
-will have to target your pipeline at a [PCF instance you have setup](setup-pcf.html).
+will have to target your pipeline at a [PCF instance you have setup](./environments.html).
 
 Concourse has a resource type to manage a pool of resources that are shared
 between pipelines, which is what we use to serialize PCF access between the
