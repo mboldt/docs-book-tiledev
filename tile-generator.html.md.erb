@@ -1,4 +1,7 @@
-# Tile Generator
+---
+title: Tile Generator
+owner: Services
+---
 
 The Tile Generator is a tool to help you develop, package, test,
 and deploy services and other add-ons to Pivotal Cloud Foundry. Tiles are the
@@ -40,6 +43,22 @@ combination of the following package types:
 
 For a 7-minute introduction into what tile generator is and does, see
 [this screencast](https://www.youtube.com/watch?v=_WeJbqNJWzQ).
+
+
+## Note
+
+TK 
+
+I think the contrast we were drawing was between people using tile-generator, and people who build things manually because either they already have an OSS-compatible bosh release, or they want to end up with a tile *and* an OSS-compatible bosh release. We decided to focus on those using tile-generator.
+
+There are tiles/integrations that were built before tile-generator, both internal (MySQL, Redis, Rabbit) and external (Jenkins, Artifactory, Gitlab). The internal ones know what they're doing, but we're actively working to get the external ones converted to tile-gen, for a number of reasons:
+- We need to be able to rapidly update tiles for new stemcells and Ops Manager metadata formats
+- We need to be prepared to convert them to whatever bundle format PCF Bosh will support
+
+There is also a group of partners who want their integrations to work with OSS Cloud Foundry, so they want a bosh release deliverable in addition to a Pivotal tile. Tile-generator actually does that, and in the context of PCF Bosh that argument will go away, but we haven't really pushed tile-gen with the OSS community yet so only those who start their integrations with us use it.
+
+Both those audiences can/should use tile-generator, or refer to OSS documentation if they really want to manually craft things. I think we, Pivotal, should push all those who build integrations towards tile-generator, so that's what our docs should describe.
+
 
 ## How to Use
 
@@ -107,13 +126,12 @@ src/build.sh
 tile build
 ```
 
-!!! note "Note:"
-    The sample tile includes a Python application that is re-used in several packages,
+<p class="note"><strong>Note</strong>: The sample tile includes a Python application that is re-used in several packages,
     sometimes as an app, sometimes as a service broker. One of the deployments (app3)
     uses the sample application inside a docker image that is currently only modified
     by the CI pipeline. If you modify the sample app, you will have to build your own
     docker image using the provided `Dockerfile` and change the image name in
-    `sample/tile.yml` to include the modified code in app3.
+    `sample/tile.yml` to include the modified code in app3.</p>
 
 ## Defining your Tile
 
@@ -183,7 +201,7 @@ Currently, the only valid options are `none` and `port`.
 `configurable_persistence: true` results in the user being able to select a backing
 service for data persistence. If there is a specific broker you want to use, you can
 use the `auto-services` feature described below. If you want to bind to an already
-existing service instance, use the `services` proeprty of the `manifest` instead.
+existing service instance, use the `services` property of the `manifest` instead.
 
 `needs_cf_credentials` causes the application to receive two additional environment
 variables named `CF_ADMIN_USER` and `CF_ADMIN_PASSWORD` with the admin credentials
@@ -212,11 +230,10 @@ of just `app` or `docker-app`:
   enable_global_access_to_plans: true  # optional
 ```
 
-!!! note "Note:"
-    Unless you specify the `enable_global_access_to_plans: true` option, your
+  <p class="note"><strong>Note</strong>: Unless you specify the `enable_global_access_to_plans: true` option, your
     broker's services will not appear in the user's marketplaces.
     Operators will have to use the `cf enable-service-access` command to allow
-    specific users, orgs, and spaces to access your services.
+    specific users, orgs, and spaces to access your services.</p>
 
 Your broker will be automatically registered with the Cloud Controller. The
 Cloud Controller will invoke your broker's endpoints, and it will use basic
@@ -540,11 +557,10 @@ package.
 Service instances provisioned this way survive updates, but will be deleted
 when the tile is uninstalled.
 
-!!! note "Note:"
-    The name is the name of the provided *service, not the broker*.
+<p class="note"><strong>Note</strong>:  The name is the name of the provided *service, not the broker*.
     In many cases these are not the same, and a single broker may even offer
     multiple services. Use `cf service-access` to see the services and plans
-    offered by installed service brokers.
+    offered by installed service brokers.</p>
 
 If you do not specify a plan, the tile generator will use the first plan
 listed for the service in the broker catalog. It is a good idea to always
