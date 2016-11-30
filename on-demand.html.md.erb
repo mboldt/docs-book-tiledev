@@ -1,4 +1,17 @@
 ---
-title: 
-owner: 
+title: On-Demand Service
+owner: Services
 ---
+
+## <a id="overview"></a> Overview
+
+
+All prior, lower-level integrations assume that you have a single VM instance deployed for your software deployed, or a limited number of VMs. These VMs can be multi-tenant, and you can possibly scale them manually to accommodate many concurrent applications. But for real production deployments, most of your customers will want dedicated VM instances of your service for each application.
+
+
+### <a id="dynamic-ha"></a> High Availability
+
+If you hadn't [already configured](./managed.html#managed-ha) your service for High Availability as a managed service, the final step would be to consider how
+you can make each of your dynamically-provisioned service instances more highly available.
+
+## <a id="create"></a> Create an On-Demand Service

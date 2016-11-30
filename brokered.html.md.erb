@@ -3,13 +3,31 @@ title: Brokered Service
 owner: Services
 ---
 
-# How to Build a Service Broker
+## <a id="overview"></a> Overview
+
+
+The first real improvement in user experience is achieved by creating a
+[Service Broker](service-brokers.html) for your service.
+
+A brokered service runs external to PCF, but has a tile on [Pivotal Network](http://network.pivotal.io) (PivNet). Operators install, configure, and upgrade the tile through the Ops Manager Installation Dashboard.
+
+The service broker eliminates the need for your customers to know the URLs and
+credentials for your services; they are managed automatically by the
+broker.
+
+Building a broker for a (still) externally deployed service is generally
+a good way to be able to publish a first tile that adds real value for
+customers who have both your software and PCF.
+
+## <a id="create"></a> Create a Brokered Service
+
+### How to Build a Service Broker
 
 - [Custom Services](http://docs.pivotal.io/pivotalcf/services/index.html)
 - [Service Broker API](http://docs.pivotal.io/pivotalcf/services/api.html)
 - [Route Services](http://docs.pivotal.io/pivotalcf/services/route-services.html)
 
-## Example Service Brokers
+#### Example Service Brokers
 
 - [Example Service Brokers](http://docs.pivotal.io/pivotalcf/services/examples.html)
 - [Example Route Services](http://docs.pivotal.io/pivotalcf/services/route-services.html#examples)
