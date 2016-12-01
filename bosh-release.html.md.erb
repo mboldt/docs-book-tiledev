@@ -1,42 +1,50 @@
 ---
-title: BOSH Release
+title: BOSH Releases
 owner: Services
 ---
 
-## How to Build a Managed Service
+This topic provides resources for creating a BOSH release that integrates a software service with Pivotal Cloud Foundry (PCF) at the managed service level.
 
-A managed service is a service deployed on Cloud Foundry infrastructure
-(in other words, the same IaaS that your particular Cloud Foundry instance
-is deployed on) by the same orchestration tool, [bosh](http://bosh.io).
-Offering your software as a managed service means that your PCF customers
-will not have to learn different ways to deploy, manage, and monitor
-different components of their application platform.
+## <a id="overview"></a> Overview
 
-For bosh to manage your service, the major components needed are:
+A BOSH release is a directory that contains the source code for your service along with everything else that BOSH needs to deploy it reproducibly to cloud VMs running a specified operating system (stemcell). These contents include but are not limited to buildpacks, start up scripts, binary artifacts, and a BOSH manifest containing configuration and deployment properties.
+
+The BOSH manifest specifies the following major components:
 
 - **Packages** that can be installed on PCF stemcells to create virtual machine images
+
 - **Jobs** that describe how to install, run, and remove your software
+
 - A **Monitor** script, that describes how to monitor the health of your
 service components and stop or restart them
 
-### BOSH overview
+## <a id="resources"></a> BOSH Resources
 
-- [BOSH Documentation](http://bosh.io/docs)
-- [BOSH Problem Statement](http://bosh.io/docs/problems.html)
-- [BOSH Basic Workflow](http://bosh.io/docs/basic-workflow.html)
+These topics give more details on BOSH and BOSH releases:
 
-### Creating a BOSH Release
+- [BOSH Documentation](http://bosh.io/docs) is the top-level contents page for BOSH documentation.
+
+- [BOSH Problem Statement](http://bosh.io/docs/problems.html) explains what BOSH does.
+
+- [BOSH Basic Workflow](http://bosh.io/docs/basic-workflow.html) lists the high-level steps for creating a BOSH deployment.
+
+## <a id="create"></a>Creating a BOSH Release
+
+These topics explain how to create a BOSH release:
 
 - [Creating a Release](http://bosh.io/docs/create-release.html)
+
 - [Defining your Jobs](http://bosh.io/docs/jobs.html)
+
 - [Defining your VMs](http://bosh.io/docs/vm-struct.html)
+
 - [Monitoring the Health of your Service](http://bosh.io/docs/monitoring.html)
 
-### Shortcut - Start with Docker images
+## <a id="docker"></a>Shortcut: Start with Docker Images
 
-If you have already packaged your service as docker images, you can emulate
+If you have already packaged your service as Docker images, you can emulate
 a managed service deployment using the [Tile Generator](tile-generator.html)'s
-support for docker-bosh packages. This feature lets you deploy pre-existing
+support for `docker-bosh` packages. This feature lets you deploy pre-existing
 docker images into bash managed virtual machines on the PCF infrastructure.
 
 While this is a great, easy way to deploy your service on PCF, we don't
@@ -46,47 +54,8 @@ a number of operational ("day 2") drawbacks:
 
 - You introduce more software (docker) which needs to be kept up-to-date, and
 has the potential for bugs, downtime, and security vulnerabilities.
+
 - You can no longer take advantage of the patching capabilities of PCF for
 stemcells and application dependencies, like frameworks and libraries. Instead,
 you become directly responsible for managing all software that is in the docker
 images you deploy.
-
-## How to Create a Buildpack
-
-- [Creating a custom buildpack](http://docs.pivotal.io/pivotalcf/buildpacks/custom.html)
-
-### Official buildpacks
-
-- [Java buildpack](https://github.com/cloudfoundry/java-buildpack) (by far the most compicated!)
-- [Go buildpack](https://github.com/cloudfoundry/go-buildpack)
-- [Ruby buildpack](https://github.com/cloudfoundry/ruby-buildpack)
-- [Node.js buildpack](https://github.com/cloudfoundry/nodejs-buildpack)
-- [Python buildpack](https://github.com/cloudfoundry/python-buildpack)
-- [PHP buildpack](https://github.com/cloudfoundry/php-buildpack)
-- [Static file buildpack](https://github.com/cloudfoundry/staticfile-buildpack) (for static web content)
-- [Binary buildpack](https://github.com/cloudfoundry/binary-buildpack)
-
-### Other buildpacks
-
-- [Meta-buildpack](https://github.com/guidowb/meta-buildpack)
-- [Spring Config decorator buildpack](https://github.com/guidowb/spring-config-decorator)
-
-
-## How to Build an Embedded Agent
-
-Some integrations depend on the ability to inject code into the application container.
-Examples of this include:
-
-- Application Performance Monitoring (APM) agents
-- Container-embedded API gateways
-- Client-side routers
-
-We refer to these injected components as "container-embedded agents".
-[Buildpacks](buildpacks.html) provide a mechanism to inject components into the application
-container image, and the `.profile.d` directory provides a way to start agents before or
-alongside the customer application.
-
-- [Agent Injection with the meta-buildpack](https://github.com/guidowb/meta-buildpack)
-- [Using .profile.d](http://docs.pivotal.io/pivotalcf/devguide/deploy-apps/deploy-app.html#profiled)
-
-

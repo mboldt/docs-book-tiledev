@@ -7,17 +7,17 @@ The topics in this subsection explain how to integrate your [brokered service](.
 
 ## <a id="overview"></a> Overview
 
-A managed service is a service deployed on Cloud Foundry infrastructure
-(in other words, the same IaaS that your particular Cloud Foundry instance
-is deployed on) by the same orchestration tool, [BOSH](http://bosh.io).
+The next level of integration is to get your service to be deployed on PCF rather
+than externally, on the same IaaS that your particular Cloud Foundry instance
+is deployed on, and by the same orchestration tool, [BOSH](http://bosh.io).
+
+This is usually one of the more involved integrations, as you will have to change your packaging to allow your service components to be deployed by [BOSH](http://bosh.io) onto the PCF infrastructure.
+
 Offering your software as a managed service means that your PCF customers
 will not have to learn different ways to deploy, manage, and monitor
 different components of their application platform.
 
 As with the brokered service, the service has a service broker and a tile listed on PivNet. PivNet lists managed services as "for PCF," without "Service Broker" in the name.
-
-The next step is to get your service to actually be deployed on PCF rather
-than externally. This is usually one of the more involved integrations, as you will have to change your packaging to allow your service components to be deployed by [BOSH](http://bosh.io) onto the PCF infrastructure.
 
 To integrate your service at this level, you will have to learn about stemcells, BOSH releases, and manifests. You will also have to decide how your service maps to virtual machines and how persistent storage is managed.
 
@@ -42,42 +42,12 @@ your persistent storage across those as well.
 
 ## <a id="create"></a> Create a Managed Service
 
-For BOSH to manage your service, the major components needed are:
+* For BOSH to manage your service, you need to create a BOSH release for it.  
+[BOSH Releases](./bosh-release.html) explains how to do this, and how to use your already-existing Docker image as a shortcut.
 
-- **Packages** that can be installed on PCF stemcells to create virtual machine images
-- **Jobs** that describe how to install, run, and remove your software
-- A **Monitor** script, that describes how to monitor the health of your
-service components and stop or restart them
+* With your managed service running on PCF, you can use Cloud Foundry's Loggregator system to log and generate metrics for service usage and health.  
+[Nozzles](./nozzle.html) explains how to do this.
 
-## BOSH overview
+* Once you have created a BOSH release for your managed service integration, you can work through the [development steps](./development.html) to create your tile.
 
-- [BOSH Documentation](http://bosh.io/docs)
-- [BOSH Problem Statement](http://bosh.io/docs/problems.html)
-- [BOSH Basic Workflow](http://bosh.io/docs/basic-workflow.html)
-
-## Creating a BOSH Release
-
-- [Creating a Release](http://bosh.io/docs/create-release.html)
-- [Defining your Jobs](http://bosh.io/docs/jobs.html)
-- [Defining your VMs](http://bosh.io/docs/vm-struct.html)
-- [Monitoring the Health of your Service](http://bosh.io/docs/monitoring.html)
-
-## Shortcut - Start with Docker images
-
-If you have already packaged your service as docker images, you can emulate
-a managed service deployment using the [Tile Generator](tile-generator.html)'s
-support for docker-bosh packages. This feature lets you deploy pre-existing
-docker images into bash managed virtual machines on the PCF infrastructure.
-
-While this is a great, easy way to deploy your service on PCF, we don't
-recommend this as a long-term, production-ready solution. There is really no
-benefit of running your service in containers on the VMs, and it does have
-a number of operational ("day 2") drawbacks:
-
-- You introduce more software (docker) which needs to be kept up-to-date, and
-has the potential for bugs, downtime, and security vulnerabilities.
-- You can no longer take advantage of the patching capabilities of PCF for
-stemcells and application dependencies, like frameworks and libraries. Instead,
-you become directly responsible for managing all software that is in the docker
-images you deploy.
-
+At any level of integration, Pivotal recommends and supports using [Concourse](./concourse.html) for continuous integration during development.

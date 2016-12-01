@@ -3,7 +3,7 @@ title: Development Steps at Each Level
 owner: Services
 ---
 
-The ultimate deliverable of a PCF integration is almost always a "tile", a
+The ultimate deliverable of a PCF integration is almost always a "tile," a
 Pivotal Cloud Foundry installation package that is delivered through our
 [marketplace](http://network.pivotal.io) and installed through Pivotal's
 Ops Manager. But when developing an integration, it is advisable to start
@@ -12,7 +12,7 @@ components much faster. Our recommendation is to approach development in
 phases:
 
 1. [Develop](#components) and test the Tile Generator inputs individually
-2. [Describe](#tile-generator) your tile in `tile.yml` and use Tile Generator to create the tile components
+2. [Describe](#tile-generator) your tile in `tile.yml` and use [Tile Generator](./tile-generator.html) to create the tile components
 3. [Test](#test-errands) the generated deploy errands individually using [pcf utility](pcf-command.html#errands)
 4. [Deploy](#deploy-tile) the generated BOSH release and complete tile
 5. [Implement](#concourse) Continuous Integration (CI) for the complete tile
@@ -83,6 +83,3 @@ could not be tested in earlier ones:
 - The upgrade/migration steps from one version of a tile to another (if applicable)
 
 Everything else should work exactly as it did in prior steps.
-
-## <a name="concourse"></a> Deploy your generated BOSH release and full tile
-

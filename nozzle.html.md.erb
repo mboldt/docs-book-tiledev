@@ -1,13 +1,18 @@
-# How to Build a Nozzle
+---
+title: Nozzles
+owner: Services
+---
 
-## Overview
+This topic explains how to build a nozzle that directs desired data from the aggregated Firehose of component and app logs and metrics to services or apps that consume them.
+
+## <a id="overview"></a> Overview
 
 Cloud Foundry's logging system, Loggregator,
-has a feature called firehose. The firehose includes the combined stream of logs 
+has a feature called Firehose. The Firehose includes the combined stream of logs 
 and metrics from every apps as well as
 the Cloud Foundry platform itself. Building a nozzle could be a solution for
 
-* Draining metrics to an external dashboard product for sytem operators
+* Draining metrics to an external dashboard product for system operators
 * Sending every http request's details into a search tool
 * Draining all application logs to an external system 
 * Thinking a little differently, [this video shows auto-scaling an app based on firehose metrics](https://youtu.be/skJKvQfpKD4?t=1021)
@@ -15,7 +20,7 @@ the Cloud Foundry platform itself. Building a nozzle could be a solution for
 [Firehose-to-syslog is a real world, production example](https://github.com/cloudfoundry-community/firehose-to-syslog)
 of a nozzle.
 
-## Building
+## <a id="develop"></a> Develop a Nozzle
 
 Developing a nozzle should be done in Go, as this allows leveraging the
 [NOAA library](https://github.com/cloudfoundry/noaa).
@@ -45,7 +50,7 @@ with a client having the `doppler.firehose` scope:
 ```
 
 Using the token, create a consumer and connect to the Firehose with a subscription id.
-The id is important, since the firehose looks for connections having the same id and only
+The id is important, since the Firehose looks for connections having the same id and only
 sends an event to one of those connections. This is how a nozzle developer can prevent
 message loss during upgrades an other deployments: run at least two instances.
 
@@ -83,25 +88,26 @@ An advanced integration could do something like combine a
 
 For a full working example, see [firehose-nozzle](https://github.com/cf-platform-eng/firehose-nozzle).
 
-## Deployment
+## <a id="deploy"></a> Deploy a Nozzle
 
-Once you've build a nozzle, there are a couple options for deployment
+Once you've build a nozzle, you can deploy it as either a managed service or as an app.
 
-#### As a Managed Service
+### <a id="nozzle-service"></a> As a Managed Service
+
 Visit [managed service](managed.html)
 for more details on what it means to be a managed service.
 
 See also this
 [example nozzle BOSH release](https://github.com/cloudfoundry-incubator/example-nozzle-release).
 
-#### As an App
+### <a id="nozzle-app"></a> As an App
 
-You could also deploy the nozzle on the elastic runtime itself.
+You can also deploy the nozzle as an app on Elastic Runtime.
 Visit the Tile Generator's
-[section on pushed appliactions](tile-generator.html#pushed-applications)
+[section on pushed applications](tile-generator.html#pushed-applications)
 for more details.
 
-## Open Source Nozzles
+## <a id="examples"></a> Example Nozzles
 
 There are several open source examples you could use
 as a reference for building your nozzle
@@ -135,9 +141,13 @@ as a reference for building your nozzle
 
   * A simpler implementation than other real examples
 
-## Other References
+## <a id="resources"></a> Other Resources
 
 * CF Summit Video [Monitoring Cloud Foundry: Learning about the Firehose](https://youtu.be/skJKvQfpKD4)
+
 * [Loggregator github repo](https://github.com/cloudfoundry/loggregator/)
+
 * [Overview of the Loggregator System](https://docs.cloudfoundry.org/loggregator/architecture.html)
+
 * [Loggregator's Slack Channel](https://cloudfoundry.slack.com/messages/loggregator/)
+
